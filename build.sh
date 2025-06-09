@@ -31,7 +31,7 @@ cpus=`expr $(nproc --all)`
 objdir="${kernel_dir}/out"
 CONFIGS="raphael_defconfig"
 
-VER="V2.2-Envy-DSP"
+VER="V2.3-Parvez-DSP"
 KERNEL_DIR=`pwd`
 REPACK_DIR=$HOME/AnyKernel3
 ZIP_MOVE=$HOME/Boolx
@@ -88,7 +88,7 @@ function make_config {
 		makeconfig ${CONFIGS}
 }
 function make_boot {
-		cp $KERNEL $REPACK_DIR && cp $DTBO $REPACK_DIR/oc
+		cp $KERNEL $REPACK_DIR && cp $DTBO $REPACK_DIR
 }
 function make_zip {
 		cd $REPACK_DIR
@@ -100,10 +100,25 @@ function make_zip {
 function upload()
 {
 curl bashupload.com -T $ZIP_NAME*.zip
-ziped=$ZIP_MOVE/`echo $ZIP_NAME`.zip
-sed -i "4i\FILE_PATH=$ziped" $HOME/bool/upl.sh
-BUILDDATE=`date +"%Y-%m-%d"`
-sed -i '5i\CAPTION="Build Date: '$BUILDDATE' | Type: KSU, DSP, Mi-Thermal, no OCD"' $HOME/bool/upl.sh
+}
+
+function upload_boolx_action()
+{
+                ziped=$ZIP_MOVE/`echo $ZIP_NAME`.zip
+		upl=$kernel_dir/upl.sh
+		cd $kernel_dir
+		#wget
+		chmod +x $upl
+		sed -i "4i\FILE_PATH=$ziped" $upl
+		BUILDDATE=`date +"%Y-%m-%d"`
+		sed -i '5i\CAPTION="* Build Date: '$BUILDDATE'' $upl
+		sed -i '6i\* Kernel Version: v.4.14.356' $upl
+		sed -i '7i\* KSU+NEXT: v.12604' $upl
+		sed -i '8i\* SUSFS: v1.5.7' $upl
+		sed -i '9i\* Type: DSP, Mi Thermal' $upl
+		sed -i '10i\* Changes: https://github.com/onettboots/bool-x_xiaomi_raphael/commits/14-DSPcr' $upl
+                sed -i '11i\* Clang: Boolx Clang 21.0.0"' $upl
+                bash $upl
 }
 
 DATE_START=$(date +"%s")
@@ -127,16 +142,16 @@ case "$cchoice" in
 	aarch64|Aarch64 )
 		echo
 		echo "Downloading Boolx-clang for Aarch64 host."
-		git clone https://gitlab.com/onettboots/boolx-clang.git -b Clang-15.0 $TOOLCHAINS
+		wget https://github.com/onettboots/boolx-clang-build/releases/download/Boolx-21/boolx-clang21.tar.gz -P $SAVEHEREAdd commentMore actions
+ 		cd $SAVEHERE
+		echo "Extracting Boolx Clang 21.0.0 to $HOME/toolchains/:"
+ 		tar -xf boolx-clang21.tar.gz
 		break
 		;;
 	x86|X86 )
 		echo
 		echo "Downloading Boolx-clang for X86 host."
-		wget https://github.com/onettboots/boolx-clang-build/releases/download/Boolx-21/boolx-clang21.tar.gz -P $SAVEHERE
- 		cd $SAVEHERE
-		echo "Extracting Boolx Clang 21.0.0 to $HOME/toolchains/:"
- 		tar -xf boolx-clang21.tar.gz
+		git clone https://gitlab.com/onettboots/boolx-clang.git -b Clang-17.0_x86 $TOOLCHAINS
 		break
 		;;
 	* )
@@ -286,3 +301,5 @@ else
 fi
 
 echo
+
+rm -rf $upl
