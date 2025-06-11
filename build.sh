@@ -142,16 +142,16 @@ case "$cchoice" in
 	aarch64|Aarch64 )
 		echo
 		echo "Downloading Boolx-clang for Aarch64 host."
-		wget https://github.com/onettboots/boolx-clang-build/releases/download/Boolx-21/boolx-clang21.tar.gz -P $SAVEHEREAdd commentMore actions
- 		cd $SAVEHERE
-		echo "Extracting Boolx Clang 21.0.0 to $HOME/toolchains/:"
- 		tar -xf boolx-clang21.tar.gz
+		git clone https://gitlab.com/onettboots/boolx-clang.git -b Clang-15.0 $TOOLCHAINS
 		break
 		;;
 	x86|X86 )
 		echo
 		echo "Downloading Boolx-clang for X86 host."
-		git clone https://gitlab.com/onettboots/boolx-clang.git -b Clang-17.0_x86 $TOOLCHAINS
+		wget https://github.com/onettboots/boolx-clang-build/releases/download/Boolx-21/boolx-clang21.tar.gz -P $SAVEHERE
+                cd $SAVEHERE
+                echo "Extracting Boolx Clang 21.0.0 to $HOME/toolchains/:"
+                tar -xf boolx-clang21.tar.gz
 		break
 		;;
 	* )
