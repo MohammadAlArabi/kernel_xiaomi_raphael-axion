@@ -484,6 +484,7 @@ struct usbpd {
 
 	bool		has_dp;
 	u16			ss_lane_svid;
+
 	/*for xiaomi verifed pd adapter*/
 	u32			adapter_id;
 	u32			adapter_svid;
@@ -2191,12 +2192,14 @@ static void handle_vdm_rx(struct usbpd *pd, struct rx_msg *rx_msg)
 						SVDM_HDR_OBJ_POS(vdm_hdr));
 				break;
 			}
+
 			if (num_vdos != 0) {
 				for (i = 0; i < num_vdos; i++) {
 					pd->adapter_id = vdos[i] & 0xFFFF;
 					usbpd_info(&pd->dev, "pd->adapter_id:0x%x\n", pd->adapter_id);
 				}
 			}
+
 			pd->vdm_state = DISCOVERED_ID;
 			usbpd_send_svdm(pd, USBPD_SID,
 					USBPD_SVDM_DISCOVER_SVIDS,
@@ -5216,6 +5219,7 @@ struct usbpd *usbpd_create(struct device *parent)
 		.svdm_received  = NULL,
 		.disconnect     = &usbpd_mi_disconnect_cb,
 	};
+
 	pd = kzalloc(sizeof(*pd), GFP_KERNEL);
 	if (!pd)
 		return ERR_PTR(-ENOMEM);
@@ -5412,11 +5416,13 @@ struct usbpd *usbpd_create(struct device *parent)
 	ret = power_supply_reg_notifier(&pd->psy_nb);
 	if (ret)
 		goto del_inst;
+
 	pd->svid_handler = svid_handler;
 	ret = usbpd_register_svid(pd, &pd->svid_handler);
 	if (ret) {
 		usbpd_err(&pd->dev, "usbpd registration failed\n");
 	}
+
 	/* force read initial power_supply values */
 	psy_changed(&pd->psy_nb, PSY_EVENT_PROP_CHANGED, pd->usb_psy);
 
